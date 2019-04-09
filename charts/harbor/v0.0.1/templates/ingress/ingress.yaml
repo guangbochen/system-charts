@@ -11,6 +11,11 @@ metadata:
 {{ toYaml $ingress.annotations | indent 4 }}
 spec:
   tls:
+{{- if eq $tls.type "rancher"}}
+  - hosts:
+    - {{ $ingress.hosts.core }}
+    secretName: "tls-rancher-ingress"
+{{- else }}
   - hosts:
     - {{ $ingress.hosts.core }}
     {{- if $tls.secretName }}
@@ -29,7 +34,21 @@ spec:
     secretName: "{{ template "harbor.ingress" . }}"
     {{- end }}
   {{- end }}
+{{- end }}
   rules:
+  {{- if eq $tls.type "rancher"}}
+  - host: {{ $ingress.hosts.core }}
+    http:
+      paths:
+      - path: /v2/
+        backend:
+          serviceName: {{ template "harbor.core" . }}
+          servicePort: 80
+      - path: /registry/
+        backend:
+          serviceName: {{ template "harbor.proxy" . }}
+          servicePort: 80
+  {{- else }}
   - host: {{ $ingress.hosts.core }}
     http:
       paths:
@@ -65,5 +84,6 @@ spec:
         backend:
           serviceName: {{ template "harbor.notary-server" . }}
           servicePort: 4443
+  {{- end }}
   {{- end }}
 {{- end }}
