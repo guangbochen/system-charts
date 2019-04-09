@@ -4,7 +4,7 @@ expose:
   # in the corresponding section
   type: ingress
   tls:
-    # Set the type as "secretName", "custom CA", "letsEncrypt", "rancher" or "self-signed x509 certificate"
+    # Set the type as "secretName", "custom CA", "rancher" or "self-signed x509 certificate"
     type: secretName
     # Fill the name of secret if you want to use your own TLS certificate
     # and private key. The secret must contain keys named tls.crt and 
@@ -21,23 +21,25 @@ expose:
     # separated one. Only needed when the type is "ingress".
     notarySecretName: ""
   ingress:
-    hosts:
-      core: core.harbor.domain
-      notary: notary.harbor.domain
+    host: harbor.local
+    # set to the type of ingress controller if it has specific requirements.
+    # leave as `default` for most ingress controllers.
+    # set to `gce` if using the GCE ingress controller
+    controller: default
     annotations:
       ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
       ingress.kubernetes.io/proxy-body-size: "0"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    # The annotation name for "rewrite-target", only needed when Notary
+    # service is enabled
+    rewriteAnnotation: nginx.ingress.kubernetes.io/rewrite-target
   clusterIP:
     # The name of ClusterIP service
     name: harbor
     ports:
       # The service port Harbor listens on when serving with HTTPS
-      httpsPort: 443
-      # The service port Notary listens on. Only needed when notary.enabled 
-      # is set to true
-      notaryPort: 4443
+      https: 443
   nodePort:
     # The name of NodePort service
     name: harbor
@@ -47,40 +49,27 @@ expose:
         port: 443
         # The node port Harbor listens on when serving with HTTPS
         nodePort: 30003
-      # Only needed when notary.enabled is set to true
-      notary: 
-        # The service port Notary listens on
-        port: 4443
-        # The node port Notary listens on
-        nodePort: 30004
   loadBalancer:
     # The name of LoadBalancer service
     name: harbor
     ports:
       # The service port Harbor listens on when serving with HTTPS
-      httpsPort: 443
-      # The service port Notary listens on. Only needed when notary.enabled 
-      # is set to true
-      notaryPort: 4443
-  letsEncrypt:
-    environment: staging
-    email: user@example.com
+      https: 443
 
-# The external URL for Harbor core service. It is used to
+# The external URL for Harbor service. It is used to
 # 1) populate the docker/helm commands showed on portal
 # 2) populate the token service URL returned to docker/notary client
 # 
 # Format: protocol://domain[:port]. Usually:
 # 1) if "expose.type" is "ingress", the "domain" should be 
-# the value of "expose.ingress.hosts.core"
+# the value of "expose.ingress.host"
 # 2) if "expose.type" is "clusterIP", the "domain" should be
 # the value of "expose.clusterIP.name"
 # 3) if "expose.type" is "nodePort", the "domain" should be
 # the IP address of k8s node 
 # 
 # If Harbor is deployed behind the proxy, set it as the URL of proxy
-# externalURL: https://core.harbor.domain
-externalURL: https://192.168.99.100:30003
+externalURL: https://harbor.local
 
 # The persistence is enabled by default and a default StorageClass
 # is needed in the k8s cluster to provision volumes dynamicly. 
@@ -203,9 +192,9 @@ imagePullPolicy: IfNotPresent
 
 logLevel: debug
 # The initial password of Harbor admin. Change it from portal after launching Harbor
-harborAdminPassword: "harbor12345"
+harborAdminPassword: "Harbor12345"
 # The secret key used for encryption. Must be a string of 16 chars.
-secretKey: "add-your-secret0"
+secretKey: "not-a-secure-key"
 
 # nginx proxy adapter for global registry
 proxy:
@@ -226,7 +215,7 @@ proxy:
 nginx:
   image:
     repository: goharbor/nginx-photon
-    tag: v1.7.4
+    tag: v1.7.5
   replicas: 1
   resources:
     requests:
@@ -244,7 +233,7 @@ nginx:
 portal:
   image:
     repository: goharbor/harbor-portal
-    tag: v1.7.4
+    tag: v1.7.5
   replicas: 1
   resources:
     requests:
@@ -262,7 +251,7 @@ portal:
 adminserver:
   image:
     repository: goharbor/harbor-adminserver
-    tag: v1.7.4
+    tag: v1.7.5
   replicas: 1
   resources:
     requests:
@@ -280,7 +269,7 @@ adminserver:
 core:
   image:
     repository: goharbor/harbor-core
-    tag: v1.7.4
+    tag: v1.7.5
   replicas: 1
   resources:
     requests:
@@ -309,7 +298,7 @@ core:
 jobservice:
   image:
     repository: goharbor/harbor-jobservice
-    tag: v1.7.4
+    tag: v1.7.5
   replicas: 1
   maxJobWorkers: 10
   # The logger for jobs: "file", "database" or "stdout"
@@ -335,7 +324,7 @@ registry:
   registry:
     image:
       repository: goharbor/registry-photon
-      tag: v2.6.2-v1.7.4 
+      tag: v2.6.2-v1.7.5 
     resources:
       requests:
         cpu: 20m
@@ -346,7 +335,7 @@ registry:
   controller:
     image:
       repository: goharbor/harbor-registryctl
-      tag: v1.7.4
+      tag: v1.7.5
     resources:
       requests:
         cpu: 20m
@@ -371,7 +360,7 @@ chartmuseum:
   enabled: true
   image:
     repository: goharbor/chartmuseum-photon
-    tag: v0.8.1-v1.7.4
+    tag: v0.8.1-v1.7.5
   replicas: 1
   resources:
     requests:
@@ -390,7 +379,7 @@ clair:
   enabled: true
   image:
     repository: goharbor/clair-photon
-    tag: v2.0.7-v1.7.4
+    tag: v2.0.7-v1.7.5
   replicas: 1
   # The http(s) proxy used to update vulnerabilities database from internet
   httpProxy:
@@ -416,7 +405,7 @@ notary:
   server:
     image:
       repository: goharbor/notary-server-photon
-      tag: v0.6.1-v1.7.4
+      tag: v0.6.1-v1.7.5
     replicas: 1
     resources:
       requests:
@@ -428,7 +417,7 @@ notary:
   signer:
     image:
       repository: goharbor/notary-signer-photon
-      tag: v0.6.1-v1.7.4
+      tag: v0.6.1-v1.7.5
     replicas: 1
     resources:
       requests:
@@ -465,7 +454,7 @@ postgresql:
       tag: latest
 
   replication:
-    enabled: true
+    enabled: false
     user: repl_user
     password: repl_password
     slaveReplicas: 1

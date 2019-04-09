@@ -25,7 +25,6 @@
 - [ ] Users should be able to choose Harbor service type and tls certificate:
   + [ ] secretName (existing certificate).
   + [ ] custom CA (uploading a new one).
-  + [ ] letsEncrypt (auto-signed certificate using certManager, prerequisite: [certManger](https://github.com/helm/charts/tree/master/stable/cert-manager) should be installed).
   + [ ] Rancher (only in Rancher-HA mode and the app namespace must be `cattle-system`).
   + [ ] self-signed x509 certificate (the default expiration is 3,650 days).
 - [ ] Users should be able to enable the persistent storage for the following components:

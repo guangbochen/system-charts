@@ -4,41 +4,56 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: "{{ template "harbor.ingress" . }}"
+  name: "{{ template "harbor.ingress.core" . }}"
   labels:
 {{ include "harbor.labels" . | indent 4 }}
   annotations:
 {{ toYaml $ingress.annotations | indent 4 }}
 spec:
   tls:
-{{- if eq $tls.type "rancher"}}
   - hosts:
-    - {{ $ingress.hosts.core }}
-    secretName: "tls-rancher-ingress"
-{{- else }}
-  - hosts:
-    - {{ $ingress.hosts.core }}
-    {{- if $tls.secretName }}
-    secretName: {{ $tls.secretName }}
-    {{- else }}
-    secretName: "{{ template "harbor.ingress" . }}"
-    {{- end }}
-  {{- if .Values.notary.enabled }}
-  - hosts:
-    - {{ $ingress.hosts.notary }}
-    {{- if $tls.notarySecretName }}
-    secretName: {{ $tls.notarySecretName }}
-    {{- else if $tls.secretName }}
-    secretName: {{ $tls.secretName }}
-    {{- else }}
-    secretName: "{{ template "harbor.ingress" . }}"
-    {{- end }}
-  {{- end }}
-{{- end }}
-  rules:
+    - {{ $ingress.host }}
   {{- if eq $tls.type "rancher"}}
-  - host: {{ $ingress.hosts.core }}
-    http:
+    secretName: "tls-rancher-ingress"
+  {{- else if $tls.secretName }}
+    secretName: {{ $tls.secretName }}
+  {{- else }}
+    secretName: "{{ template "harbor.ingress.core" . }}"
+  {{- end }}
+{{- if  eq .Values.expose.ingress.controller "gce" }}
+  rules:
+  - http:
+      paths:
+      - path: /*
+        backend:
+          serviceName: {{ template "harbor.portal" . }}
+          servicePort: 80
+      - path: /api/*
+        backend:
+          serviceName: {{ template "harbor.core" . }}
+          servicePort: 80
+      - path: /service/*
+        backend:
+          serviceName: {{ template "harbor.core" . }}
+          servicePort: 80
+      - path: /v2/*
+        backend:
+          serviceName: {{ template "harbor.core" . }}
+          servicePort: 80
+      - path: /chartrepo/*
+        backend:
+          serviceName: {{ template "harbor.core" . }}
+          servicePort: 80
+      - path: /c/*
+        backend:
+          serviceName: {{ template "harbor.core" . }}
+          servicePort: 80
+    {{- if $ingress.host }}
+    host: {{ $ingress.host }}
+    {{- end }}
+{{- else if eq $tls.type "rancher" }}
+  rules:
+  - http:
       paths:
       - path: /v2/
         backend:
@@ -48,9 +63,12 @@ spec:
         backend:
           serviceName: {{ template "harbor.proxy" . }}
           servicePort: 80
-  {{- else }}
-  - host: {{ $ingress.hosts.core }}
-    http:
+    {{- if $ingress.host }}
+    host: {{ $ingress.host }}
+    {{- end }}
+{{- else }}
+  rules:
+  - http:
       paths:
       - path: /
         backend:
@@ -76,14 +94,8 @@ spec:
         backend:
           serviceName: {{ template "harbor.core" . }}
           servicePort: 80
-  {{- if .Values.notary.enabled }}
-  - host: {{ $ingress.hosts.notary }}
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: {{ template "harbor.notary-server" . }}
-          servicePort: 4443
-  {{- end }}
-  {{- end }}
+    {{- if $ingress.host }}
+    host: {{ $ingress.host }}
+    {{- end }}
+{{- end }}
 {{- end }}
