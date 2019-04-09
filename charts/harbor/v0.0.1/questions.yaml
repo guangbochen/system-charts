@@ -201,12 +201,11 @@ questions:
     - "clusterIP"
 - variable: externalURL
   required: true
-  default: "https://k8s-node-ip:30003"
+  default: "https://core.harbor.domain"
   description: "Use k8s node IP if the service type is NodePort or proxy URL if the Harbor is deployed behind the proxy (format: protocol://domain:port)"
   type: string
   label: The External URL for Harbor Core Service
   group: "Expose Service Options"
-  show_if: "expose.type=nodePort||expose.type=loadBalancer"
 - variable: expose.ingress.hosts.core
   required: true
   default: "core.harbor.domain"
