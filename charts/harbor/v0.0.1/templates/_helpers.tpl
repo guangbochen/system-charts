@@ -35,8 +35,6 @@ app: "{{ template "harbor.name" . }}"
     {{- printf "false" -}}
   {{- else if eq .Values.expose.tls.type "rancher" -}}
     {{- printf "false" -}}
-  {{- else if eq .Values.expose.tls.type "letsEncrypt" -}}
-    {{- printf "false" -}}
   {{- else -}}
     {{- printf "true" -}}
   {{- end -}}
@@ -280,8 +278,12 @@ host:port,pool_size,password
   {{- printf "%s-nginx" (include "harbor.fullname" .) -}}
 {{- end -}}
 
-{{- define "harbor.ingress" -}}
-  {{- printf "%s-ingress" (include "harbor.fullname" .) -}}
+{{- define "harbor.ingress.core" -}}
+  {{- printf "%s-ingress-core" (include "harbor.fullname" .) -}}
+{{- end -}}
+
+{{- define "harbor.ingress.notary" -}}
+  {{- printf "%s-ingress-notary" (include "harbor.fullname" .) -}}
 {{- end -}}
 
 {{- define "harbor.cert" -}}
@@ -290,7 +292,7 @@ host:port,pool_size,password
 
 {{- define "harbor.externalURL" -}}
     {{- if eq .Values.expose.type "ingress" }}
-      {{- printf "https://%s" .Values.expose.ingress.hosts.core -}}
+      {{- printf "https://%s" .Values.expose.ingress.host -}}
     {{- else if eq .Values.expose.type "clusterIP" }}
       {{- printf "https://%s" .Values.expose.clusterIP.name -}}
     {{- else }}

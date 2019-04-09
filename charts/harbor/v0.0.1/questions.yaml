@@ -13,7 +13,7 @@ questions:
     type: string
     label: Image Repository
   - variable: nginx.image.tag
-    default: "v1.7.4"
+    default: "v1.7.5"
     description: "Docker image tag"
     type: string
     label: Image Tag
@@ -23,7 +23,7 @@ questions:
     type: string
     label: Image Repository
   - variable: portal.image.tag
-    default: "v1.7.4"
+    default: "v1.7.5"
     description: "Docker image tag"
     type: string
     label: Image Tag
@@ -33,7 +33,7 @@ questions:
     type: string
     label: Image Repository
   - variable: adminserver.image.tag
-    default: "v1.7.4"
+    default: "v1.7.5"
     description: "Docker image tag"
     type: string
     label: Image Tag
@@ -44,7 +44,7 @@ questions:
     label: Image Repository
   - variable: core.image.tag
     description: "Docker image tag"
-    default: "v1.7.4"
+    default: "v1.7.5"
     type: string
     label: Image Tag
   - variable: jobservice.image.repository
@@ -53,7 +53,7 @@ questions:
     type: string
     label: Image Repository
   - variable: jobservice.image.tag
-    default: "v1.7.4"
+    default: "v1.7.5"
     description: "Docker image tag"
     type: string
     label: Image Tag
@@ -63,7 +63,7 @@ questions:
     type: string
     label: Image Repository
   - variable: registry.registry.image.tag
-    default: "v2.6.2-v1.7.4"
+    default: "v2.6.2-v1.7.5"
     description: "Docker image tag"
     type: string
     label: Image Tag
@@ -73,7 +73,7 @@ questions:
     type: string
     label: Image Repository
   - variable: registry.controller.image.tag
-    default: "v1.7.4"
+    default: "v1.7.5"
     description: "Docker image tag"
     type: string
     label: Image Tag
@@ -83,7 +83,7 @@ questions:
     type: string
     label: Image Repository
   - variable: chartmuseum.image.tag
-    default: "v0.8.1-v1.7.4"
+    default: "v0.8.1-v1.7.5"
     description: "Docker image tag"
     type: string
     label: Image Tag
@@ -93,7 +93,7 @@ questions:
     type: string
     label: Image Repository
   - variable: clair.image.tag
-    default: "v2.0.7-v1.7.4"
+    default: "v2.0.7-v1.7.5"
     description: "Docker image tag"
     type: string
     label: Image Tag
@@ -103,7 +103,7 @@ questions:
     type: string
     label: Image Repository
   - variable: notary.server.image.tag
-    default: "v0.6.1-v1.7.4"
+    default: "v0.6.1-v1.7.5"
     description: "Docker image tag"
     type: string
     label: Image Tag
@@ -113,7 +113,7 @@ questions:
     type: string
     label: Image Repository
   - variable: notary.signer.image.tag
-    default: "v0.6.1-v1.7.4"
+    default: "v0.6.1-v1.7.5"
     description: "Docker image tag"
     type: string
     label: Image Tag
@@ -201,12 +201,13 @@ questions:
     - "clusterIP"
 - variable: externalURL
   required: true
-  default: "https://core.harbor.domain"
+  # default: "https://core.harbor.domain"
+  default: "https://13.115.81.156:30003"
   description: "Use k8s node IP if the service type is NodePort or proxy URL if the Harbor is deployed behind the proxy (format: protocol://domain:port)"
   type: string
   label: The External URL for Harbor Core Service
   group: "Expose Service Options"
-- variable: expose.ingress.hosts.core
+- variable: expose.ingress.host
   required: true
   default: "core.harbor.domain"
   description: "The host of Harbor core service in ingress rule"
@@ -214,14 +215,6 @@ questions:
   label: Ingress Hostname of Harbor Core Service
   group: "Expose Service Options"
   show_if: "expose.type=ingress"
-- variable: expose.ingress.hosts.notary
-  required: true
-  default: "notary.harbor.domain"
-  description: "The host of Harbor Notary service in ingress rule"
-  type: string
-  label: Ingress Hostname of Harbor Notary Service
-  group: "Expose Service Options"
-  show_if: "expose.type=ingress&&notary.enabled=true"
 - variable: expose.tls.type
   required: true
   default: "secretName"
@@ -232,7 +225,6 @@ questions:
   options:
     - "secretName"
     - "custom CA"
-    - "letsEncrypt"
     - "rancher"
     - "self-signed x509 certificate"
 - variable: expose.tls.secretName
@@ -259,25 +251,6 @@ questions:
   label: TLS Certificate
   group: "Expose Service Options"
   show_if: "expose.tls.type=custom CA"
-- variable: expose.letsEncrypt.environment
-  required: true
-  default: "production"
-  description: "LetsEncrypt Server Environment"
-  type: enum
-  label: LetsEncrypt Server Environment
-  group: "Expose Service Options"
-  show_if: "expose.tls.type=letsEncrypt"
-  options:
-    - "staging"
-    - "production"
-- variable: expose.letsEncrypt.email
-  required: true
-  default: "user@example.com"
-  description: "LetsEncrypt Email"
-  type: string
-  label: LetsEncrypt Email
-  group: "Expose Service Options"
-  show_if: "expose.tls.type=letsEncrypt"
 # persistence options
 - variable: persistence.enabled
   default: false
@@ -526,6 +499,12 @@ questions:
   show_subquestion_if: true
   group: "Database Settings"
   subquestions:
+    - variable: postgresql.replication.enabled
+      default: false
+      description: "Enable PostgreSQL HA replication"
+      type: boolean
+      required: true
+      label: Enable PostgreSQL HA Replication
     - variable: postgresql.persistence.size
       default: "5Gi"
       description: "PostgreSQL Persistent Volume Size"
