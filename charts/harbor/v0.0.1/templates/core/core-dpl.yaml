@@ -98,16 +98,16 @@ spec:
           {{- end }}
       - name: ca-download
         secret:
-        {{- if and (eq .Values.expose.type "ingress") (ne .Values.expose.tls.type "secretName") }}
-          secretName: "{{ template "harbor.ingress" . }}"
+        {{- if eq .Values.expose.tls.type "rancher" }}
+          secretName: "tls-rancher"
           items:
-          {{- if or (eq .Values.expose.tls.type "rancher") (eq .Values.expose.tls.type "letsEncrypt")}}
             - key: tls.crt
               path: ca.crt
-          {{- else }}
+        {{- else if and (eq .Values.expose.type "ingress") (ne .Values.expose.tls.type "secretName") }}
+          secretName: {{ template "harbor.ingress" . }}
+          items:
             - key: ca.crt
               path: ca.crt
-          {{- end }}
         {{- else }}
           secretName: {{ template "harbor.nginx" . }}
           items:
