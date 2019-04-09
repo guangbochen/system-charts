@@ -1,0 +1,9 @@
+dependencies:
+  - name: redis
+    version: 6.1.4
+    repository: file://./dependency_charts/redis/
+    condition: redis.enabled
+  - name: postgresql
+    version: 3.11.7
+    repository: file://./dependency_charts/postgresql/
+    condition: postgresql.enabled

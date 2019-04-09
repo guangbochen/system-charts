@@ -1,0 +1,30 @@
+{{- if and (not .Values.persistence.enabled) (.Values.replication.enabled) -}}
+{{- $fullName := include "postgresql.fullname" . }}
+{{- $app := include "postgresql.name" . }}
+{{- $chart := include "postgresql.chart" . }}
+{{- $replicas := (add1 .Values.replication.slaveReplicas) | int }}
+{{- $root := . }}
+{{- range $i := until $replicas }}
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ $fullName }}-{{ $i }}
+  labels:
+    app: {{ $app }}
+    chart: {{ $chart }}
+    release: {{ $root.Release.Name | quote }}
+    heritage: {{ $root.Release.Service | quote }}
+spec:
+  storageClassName: {{ $root.Release.Name | quote }}
+  capacity:
+    storage: {{ $root.Values.persistence.size }}
+  accessModes:
+    {{- range $root.Values.persistence.accessModes }}
+    - {{ . | quote }}
+    {{- end }}
+  hostPath:
+    path: {{ $root.Values.persistence.hostPath }}/{{ $root.Release.Name }}/{{$i}}
+    type: "DirectoryOrCreate"
+---
+{{- end }}
+{{- end -}}
