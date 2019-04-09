@@ -1,5 +1,5 @@
 {{- $persistence := .Values.persistence -}}
-{{- if $persistence.enabled }}
+{{- if eq $persistence.type "storageClass" }}
 {{- $chartmuseum := $persistence.persistentVolumeClaim.chartmuseum -}}
 {{- if and (not $chartmuseum.existingClaim) (eq $persistence.imageChartStorage.type "filesystem") }}
 kind: PersistentVolumeClaim
@@ -25,6 +25,8 @@ spec:
     {{- else }}
   storageClassName: {{ $chartmuseum.storageClass }}
     {{- end }}
+  {{- else if .Values.persistence.persistentVolumeClaim.storageClass }}
+  storageClassName: {{ .Values.persistence.persistentVolumeClaim.storageClass }}
   {{- end }}
 {{- end }}
 {{- end }}

@@ -16,10 +16,6 @@ expose:
     # both secretName and custom CA are not set of following domainCert and domainKey
     domainCert: ""
     domainKey: ""
-    # By default, the Notary service will use the same cert and key as
-    # described above. Fill the name of secret if you want to use a 
-    # separated one. Only needed when the type is "ingress".
-    notarySecretName: ""
   ingress:
     host: harbor.local
     # set to the type of ingress controller if it has specific requirements.
@@ -79,11 +75,14 @@ externalURL: https://harbor.local
 # For storing images and charts, you can also use "azure", "gcs", "s3", 
 # "swift" or "oss". Set it in the "imageChartStorage" section
 persistence:
-  enabled: false
-  # Setting it to "keep" to avoid removing PVCs during a helm delete 
+  #emptyDir/hostPath/storageClass
+  type: emptyDir
+  # Setting it to "keep" to avoid removing PVCs during a helm delete
   # operation. Leaving it empty will delete PVCs after the chart deleted
   resourcePolicy: "keep"
+  hostPath: /var/lib/harbor
   persistentVolumeClaim:
+    storageClass: ""
     registry:
       # Use the existing PVC which must be created manually before bound, 
       # and specify the "subPath" if the PVC is shared with other components
@@ -95,21 +94,18 @@ persistence:
       subPath: ""
       accessMode: ReadWriteOnce
       size: 5Gi
-      hostPath: /var/lib/rancher/harbor/registry
     chartmuseum:
       existingClaim: ""
       storageClass: ""
       subPath: ""
       accessMode: ReadWriteOnce
       size: 5Gi
-      hostPath: /var/lib/rancher/harbor/chartmuseum
     jobservice:
       existingClaim: ""
       storageClass: ""
       subPath: ""
       accessMode: ReadWriteOnce
       size: 1Gi
-      hostPath: /var/lib/rancher/harbor/jobservice
 
 # Define which storage backend is used for registry and chartmuseum to store
 # images and charts. Refer to
@@ -379,7 +375,7 @@ clair:
   enabled: true
   image:
     repository: goharbor/clair-photon
-    tag: v2.0.7-v1.7.5
+    tag: v2.0.8-v1.7.5
   replicas: 1
   # The http(s) proxy used to update vulnerabilities database from internet
   httpProxy:
@@ -457,7 +453,7 @@ postgresql:
     enabled: false
     user: repl_user
     password: repl_password
-    slaveReplicas: 1
+    slaveReplicas: 2
     synchronousCommit: "on"
     numSynchronousReplicas: 1
     applicationName: my_application
@@ -472,7 +468,7 @@ postgresql:
       - ReadWriteOnce
     # storageClass: "-"
     size: 2Gi
-    hostPath: /var/lib/rancher/harbor/postgres
+    hostPath: /var/lib/harbor/postgres
 
   resources:
     requests:
