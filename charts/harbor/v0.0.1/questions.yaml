@@ -93,7 +93,7 @@ questions:
     type: string
     label: Image Repository
   - variable: clair.image.tag
-    default: "v2.0.7-v1.7.5"
+    default: "v2.0.8-v1.7.5"
     description: "Docker image tag"
     type: string
     label: Image Tag
@@ -201,7 +201,7 @@ questions:
     - "clusterIP"
 - variable: externalURL
   required: true
-  # default: "https://core.harbor.domain"
+  # default: "https://harbor.local"
   default: "https://13.115.81.156:30003"
   description: "Use k8s node IP if the service type is NodePort or proxy URL if the Harbor is deployed behind the proxy (format: protocol://domain:port)"
   type: string
@@ -209,10 +209,10 @@ questions:
   group: "Expose Service Options"
 - variable: expose.ingress.host
   required: true
-  default: "core.harbor.domain"
+  default: "harbor.local"
   description: "The host of Harbor core service in ingress rule"
   type: string
-  label: Ingress Hostname of Harbor Core Service
+  label: Ingress Hostname of Harbor
   group: "Expose Service Options"
   show_if: "expose.type=ingress"
 - variable: expose.tls.type
@@ -252,70 +252,73 @@ questions:
   group: "Expose Service Options"
   show_if: "expose.tls.type=custom CA"
 # persistence options
-- variable: persistence.enabled
-  default: false
-  description: "Enable persistent volume for Harbor services"
-  type: boolean
+- variable: persistence.type
+  default: "emptyDir"
+  description: "Config the persistent volume type for Harbor services"
+  type: enum
   required: true
-  label: Harbor Persistent Volume Enabled
-  show_subquestion_if: true
+  label: Harbor Persistent Volume Type
   group: "Persistence Storage Settings"
-  subquestions:
-  - variable: persistence.resourcePolicy
-    default: "keep"
-    description: "Setting it to 'keep' to avoid removing PVCs during a helm delete, leaving it empty will delete PVCs after the chart deleted."
-    type: string
-    label: Persistence Resource Policy
-  - variable: persistence.persistentVolumeClaim.registry.size
-    default: "5Gi"
-    description: "Registry Persistent Volume Size"
-    type: string
-    label: Registry Volume Size
-  - variable: persistence.persistentVolumeClaim.registry.storageClass
-    default: ""
-    description: "If undefined or null, uses the default StorageClass. Default to null"
-    type: storageclass
-    label: Default StorageClass for Registry
-  - variable: persistence.persistentVolumeClaim.registry.existingClaim
-    default: ""
-    description: "If not empty, uses the specified existing PVC instead of creating new one"
-    type: pvc
-    label: Existing Persistent Volume Claim for Registry
-  - variable: persistence.persistentVolumeClaim.jobservice.size
-    default: "1Gi"
-    description: "Jobservice Persistent Volume Size"
-    type: string
-    label: Jobservice Volume Size
-  - variable: persistence.persistentVolumeClaim.jobservice.storageClass
-    default: ""
-    description: "If undefined or null, uses the default StorageClass. Default to null"
-    type: storageclass
-    label: Default StorageClass for Jobservice
-  - variable: persistence.persistentVolumeClaim.jobservice.existingClaim
-    default: ""
-    description: "If not empty, uses the specified existing PVC instead of creating new one"
-    type: pvc
-    label: Existing Persistent Volume Claim for Jobservice
+  options:
+    - emptyDir
+    - hostPath
+    - storageClass
+- variable: persistence.hostPath
+  default: "/var/lib/harbor"
+  description: "Config the persistent volume using host path"
+  type: string
+  required: true
+  label: Persistent Volume HostPath
+  group: "Persistence Storage Settings"
+  show_if: "persistence.type=hostPath"
+- variable: persistence.persistentVolumeClaim.storageClass
+  default: ""
+  description: "If undefined or null, uses the default StorageClass. Default to null"
+  type: storageclass
+  label: Default StorageClass for Harbor Services(Registry, JobService and ChartMuseum)
+  show_if: "persistence.type=storageClass"
+  group: "Persistence Storage Settings"
+- variable: persistence.persistentVolumeClaim.registry.size
+  default: "5Gi"
+  description: "Registry Persistent Volume Size"
+  type: string
+  label: Registry Volume Size
+  group: "Persistence Storage Settings"
+  show_if: "persistence.type=storageClass"
+- variable: persistence.persistentVolumeClaim.registry.existingClaim
+  default: ""
+  description: "If not empty, uses the specified existing PVC instead of creating new one"
+  type: pvc
+  label: Existing Persistent Volume Claim for Registry
+  group: "Persistence Storage Settings"
+  show_if: "persistence.type=storageClass"
+- variable: persistence.persistentVolumeClaim.jobservice.size
+  default: "1Gi"
+  description: "Jobservice Persistent Volume Size"
+  type: string
+  label: Jobservice Volume Size
+  group: "Persistence Storage Settings"
+  show_if: "persistence.type=storageClass"
+- variable: persistence.persistentVolumeClaim.jobservice.existingClaim
+  default: ""
+  description: "If not empty, uses the specified existing PVC instead of creating new one"
+  type: pvc
+  label: Existing Persistent Volume Claim for Jobservice
+  group: "Persistence Storage Settings"
+  show_if: "persistence.type=storageClass"
 - variable: persistence.persistentVolumeClaim.chartmuseum.size
   default: "5Gi"
   description: "Chartmuseum Persistent Volume Size"
   type: string
   label: Chartmuseum Volume Size
-  show_if: "chartmuseum.enabled=true&&persistence.enabled=true"
-  group: "Persistence Storage Settings"
-- variable: persistence.persistentVolumeClaim.chartmuseum.storageClass
-  default: ""
-  description: "If undefined or null, uses the default StorageClass. Default to null"
-  type: storageclass
-  label: Default StorageClass for Chartmuseum
-  show_if: "chartmuseum.enabled=true&&persistence.enabled=true"
+  show_if: "chartmuseum.enabled=true&&persistence.type=storageClass"
   group: "Persistence Storage Settings"
 - variable: persistence.persistentVolumeClaim.chartmuseum.existingClaim
   default: ""
   description: "If not empty, uses the specified existing PVC instead of creating new one"
   type: pvc
   label: Existing Persistent Volume Claim for Chartmuseum
-  show_if: "chartmuseum.enabled=true&&persistence.enabled=true"
+  show_if: "chartmuseum.enabled=true&&persistence.type=storageClass"
   group: "Persistence Storage Settings"
 - variable: imageChartStorage.type
   required: true

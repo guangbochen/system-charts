@@ -19,3 +19,4 @@ data:
   SYNC_REGISTRY: "false"
   ADMINSERVER_URL: "http://{{ template "harbor.adminserver" . }}"
   CHART_CACHE_DRIVER: "redis"
+  CORE_URL: "http://{{ template "harbor.core" . }}"
