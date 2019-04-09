@@ -4,8 +4,7 @@ expose:
   # in the corresponding section
   type: ingress
   tls:
-    # Set the type as "secretName", "custom CA", "letsEncrypt", "rancher" or "self-signed x509 certificate",
-    # and both the letsEncrypt and rancher type will use certmanager issuer to auto-create TLS certificate.
+    # Set the type as "secretName", "custom CA", "letsEncrypt", "rancher" or "self-signed x509 certificate"
     type: secretName
     # Fill the name of secret if you want to use your own TLS certificate
     # and private key. The secret must contain keys named tls.crt and 
