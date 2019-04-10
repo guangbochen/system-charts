@@ -5,7 +5,7 @@ expose:
   type: ingress
   tls:
     # Set the type as "secretName", "custom CA", "rancher" or "self-signed x509 certificate"
-    type: secretName
+    type: rancher
     # Fill the name of secret if you want to use your own TLS certificate
     # and private key. The secret must contain keys named tls.crt and 
     # tls.key that contain the certificate and private key to use for TLS
