@@ -1,5 +1,6 @@
 {{- if .Values.notary.enabled }}
 {{- if eq .Values.expose.type "ingress" }}
+{{- if ne .Values.expose.tls.type "rancher" }}
 {{- $ingress := .Values.expose.ingress -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -29,5 +30,6 @@ spec:
     {{- if $ingress.host }}
     host: {{ $ingress.host }}
     {{- end }}
+{{- end }}
 {{- end }}
 {{- end }} 
