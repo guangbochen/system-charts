@@ -72,7 +72,7 @@ spec:
       {{- if and (eq .Values.persistence.type "storageClass") (eq .Values.imageChartStorage.type "filesystem") }}
         persistentVolumeClaim:
           claimName: {{ .Values.persistence.persistentVolumeClaim.chartmuseum.existingClaim | default (include "harbor.chartmuseum" .) }}
-      {{- else if eq .Values.persistence.type "hostPath" }}
+      {{- else if and (eq .Values.persistence.type "hostPath") (eq .Values.imageChartStorage.type "filesystem") }}
         hostPath:
           path: {{ .Values.persistence.hostPath }}/chartmuseum
       {{- else }}

@@ -201,8 +201,7 @@ questions:
     - "clusterIP"
 - variable: externalURL
   required: true
-  # default: "https://harbor.local"
-  default: "https://13.115.81.156:30003"
+  default: "https://harbor.local:30003"
   description: "Use k8s node IP if the service type is NodePort or proxy URL if the Harbor is deployed behind the proxy (format: protocol://domain:port)"
   type: string
   label: The External URL for Harbor Core Service
@@ -251,75 +250,6 @@ questions:
   label: TLS Certificate
   group: "Expose Service Options"
   show_if: "expose.tls.type=custom CA"
-# persistence options
-- variable: persistence.type
-  default: "emptyDir"
-  description: "Config the persistent volume type for Harbor services"
-  type: enum
-  required: true
-  label: Harbor Persistent Volume Type
-  group: "Persistence Storage Settings"
-  options:
-    - emptyDir
-    - hostPath
-    - storageClass
-- variable: persistence.hostPath
-  default: "/var/lib/harbor"
-  description: "Config the persistent volume using host path"
-  type: string
-  required: true
-  label: Persistent Volume HostPath
-  group: "Persistence Storage Settings"
-  show_if: "persistence.type=hostPath"
-- variable: persistence.persistentVolumeClaim.storageClass
-  default: ""
-  description: "If undefined or null, uses the default StorageClass. Default to null"
-  type: storageclass
-  label: Default StorageClass for Harbor Services(Registry, JobService and ChartMuseum)
-  show_if: "persistence.type=storageClass"
-  group: "Persistence Storage Settings"
-- variable: persistence.persistentVolumeClaim.registry.size
-  default: "5Gi"
-  description: "Registry Persistent Volume Size"
-  type: string
-  label: Registry Volume Size
-  group: "Persistence Storage Settings"
-  show_if: "persistence.type=storageClass"
-- variable: persistence.persistentVolumeClaim.registry.existingClaim
-  default: ""
-  description: "If not empty, uses the specified existing PVC instead of creating new one"
-  type: pvc
-  label: Existing Persistent Volume Claim for Registry
-  group: "Persistence Storage Settings"
-  show_if: "persistence.type=storageClass"
-- variable: persistence.persistentVolumeClaim.jobservice.size
-  default: "1Gi"
-  description: "Jobservice Persistent Volume Size"
-  type: string
-  label: Jobservice Volume Size
-  group: "Persistence Storage Settings"
-  show_if: "persistence.type=storageClass"
-- variable: persistence.persistentVolumeClaim.jobservice.existingClaim
-  default: ""
-  description: "If not empty, uses the specified existing PVC instead of creating new one"
-  type: pvc
-  label: Existing Persistent Volume Claim for Jobservice
-  group: "Persistence Storage Settings"
-  show_if: "persistence.type=storageClass"
-- variable: persistence.persistentVolumeClaim.chartmuseum.size
-  default: "5Gi"
-  description: "Chartmuseum Persistent Volume Size"
-  type: string
-  label: Chartmuseum Volume Size
-  show_if: "chartmuseum.enabled=true&&persistence.type=storageClass"
-  group: "Persistence Storage Settings"
-- variable: persistence.persistentVolumeClaim.chartmuseum.existingClaim
-  default: ""
-  description: "If not empty, uses the specified existing PVC instead of creating new one"
-  type: pvc
-  label: Existing Persistent Volume Claim for Chartmuseum
-  show_if: "chartmuseum.enabled=true&&persistence.type=storageClass"
-  group: "Persistence Storage Settings"
 - variable: imageChartStorage.type
   required: true
   default: "filesystem"
@@ -484,6 +414,62 @@ questions:
   label: Swift Storage Container Name
   show_if: "imageChartStorage.type=swift"
   group: "Storage Settings"
+  # persistence options
+- variable: persistence.type
+  default: "emptyDir"
+  description: "Config the persistent volume type for Harbor services"
+  type: enum
+  required: true
+  label: Harbor Persistent Volume Type
+  group: "Persistence Storage Settings"
+  show_if: "imageChartStorage.type=filesystem"
+  options:
+    - emptyDir
+    - hostPath
+    - storageClass
+- variable: persistence.hostPath
+  default: "/var/lib/harbor"
+  description: "Config the persistent volume using host path"
+  type: string
+  required: true
+  label: Persistent Volume HostPath
+  group: "Persistence Storage Settings"
+  show_if: "persistence.type=hostPath"
+- variable: persistence.persistentVolumeClaim.storageClass
+  default: ""
+  description: "If undefined or null, uses the default StorageClass. Default to null"
+  type: storageclass
+  label: Default StorageClass for Harbor Services(Registry and ChartMuseum)
+  show_if: "persistence.type=storageClass"
+  group: "Persistence Storage Settings"
+- variable: persistence.persistentVolumeClaim.registry.size
+  default: "5Gi"
+  description: "Registry Persistent Volume Size"
+  type: string
+  label: Registry Volume Size
+  group: "Persistence Storage Settings"
+  show_if: "persistence.type=storageClass"
+- variable: persistence.persistentVolumeClaim.registry.existingClaim
+  default: ""
+  description: "If not empty, uses the specified existing PVC instead of creating new one"
+  type: pvc
+  label: Existing Persistent Volume Claim for Registry
+  group: "Persistence Storage Settings"
+  show_if: "persistence.type=storageClass"
+- variable: persistence.persistentVolumeClaim.chartmuseum.size
+  default: "5Gi"
+  description: "Chartmuseum Persistent Volume Size"
+  type: string
+  label: Chartmuseum Volume Size
+  show_if: "chartmuseum.enabled=true&&persistence.type=storageClass"
+  group: "Persistence Storage Settings"
+- variable: persistence.persistentVolumeClaim.chartmuseum.existingClaim
+  default: ""
+  description: "If not empty, uses the specified existing PVC instead of creating new one"
+  type: pvc
+  label: Existing Persistent Volume Claim for Chartmuseum
+  show_if: "chartmuseum.enabled=true&&persistence.type=storageClass"
+  group: "Persistence Storage Settings"
 
 # database
 - variable: postgresql.enabled
@@ -491,6 +477,14 @@ questions:
   description: "Deploy a database server as part of this deployment, or set to false and configure an external database connection."
   type: boolean
   label: Install PostgreSQL Database
+  group: "Database Settings"
+- variable: postgresql.replication.enabled
+  default: false
+  description: "Enable PostgreSQL HA replication"
+  type: boolean
+  required: true
+  label: Enable PostgreSQL HA Replication
+  show_if: "postgresql.enabled=true"
   group: "Database Settings"
 - variable: postgresql.persistence.enabled
   default: false
@@ -502,12 +496,6 @@ questions:
   show_subquestion_if: true
   group: "Database Settings"
   subquestions:
-    - variable: postgresql.replication.enabled
-      default: false
-      description: "Enable PostgreSQL HA replication"
-      type: boolean
-      required: true
-      label: Enable PostgreSQL HA Replication
     - variable: postgresql.persistence.size
       default: "5Gi"
       description: "PostgreSQL Persistent Volume Size"
