@@ -193,9 +193,11 @@ postgres://{{ template "harbor.database.username" . }}:{{ template "harbor.datab
 {{- end -}}
 
 {{- define "harbor.redis.rawPassword" -}}
-  {{- if and .Values.redis.usePassword .Values.redis.password -}}
-    {{- .Values.redis.password -}}
-  {{- else if and .Values.redis.enabled .Values.redis.external.password -}}
+  {{- if .Values.redis.enabled -}}
+    {{- if and .Values.redis.usePassword .Values.redis.password -}}
+      {{- .Values.redis.password -}}
+    {{- end -}}
+  {{- else if .Values.redis.external.password -}}
     {{- .Values.redis.external.password -}}
   {{- end -}}
 {{- end -}}

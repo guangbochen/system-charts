@@ -29,7 +29,6 @@
   + [ ] self-signed x509 certificate (the default expiration is 3,650 days).
 - [ ] Users should be able to enable the persistent storage for the following components:
   + [ ] Registry
-  + [ ] JobService
   + [ ] ChartMuseum
 - [ ] Users should be able to enable and choosing the backend storage:
   + [ ] filesystem (localPath)
