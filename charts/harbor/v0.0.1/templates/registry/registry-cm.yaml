@@ -152,7 +152,11 @@ data:
     auth:
       token:
         issuer: harbor-token-issuer
+        {{- if eq .Values.expose.tls.type "rancher" }}
+        realm: "{{ template "harbor.externalURL" . }}/registry/service/token"
+        {{- else }}
         realm: "{{ template "harbor.externalURL" . }}/service/token"
+        {{- end }}
         rootcertbundle: /etc/registry/root.crt
         service: harbor-registry
     validation:
