@@ -2,4 +2,3 @@ docs/*
 .git/*
 .gitignore
 CONTRIBUTING.md
-dependency_charts/*

@@ -11,70 +11,70 @@ questions:
     default: "goharbor/nginx-photon"
     description: "Docker image repository"
     type: string
-    label: Image Repository
+    label: Nginx Image Repository
   - variable: nginx.image.tag
     default: "v1.7.5"
     description: "Docker image tag"
     type: string
-    label: Image Tag
+    label: Nginx Image Tag
   - variable: portal.image.repository
     default: "goharbor/harbor-portal"
     description: "Docker image repository"
     type: string
-    label: Image Repository
+    label: Harbor UI Image Repository
   - variable: portal.image.tag
     default: "v1.7.5"
     description: "Docker image tag"
     type: string
-    label: Image Tag
+    label: Harbor UI Image Tag
   - variable: adminserver.image.repository
     default: "goharbor/harbor-adminserver"
     description: "Docker image repository"
     type: string
-    label: Image Repository
+    label: AdminServer Image Repository
   - variable: adminserver.image.tag
     default: "v1.7.5"
     description: "Docker image tag"
     type: string
-    label: Image Tag
+    label: AdminServer Image Tag
   - variable: core.image.repository
     default: "goharbor/harbor-core"
     description: "Docker image repository"
     type: string
-    label: Image Repository
+    label: Harbor Core Image Repository
   - variable: core.image.tag
     description: "Docker image tag"
     default: "v1.7.5"
     type: string
-    label: Image Tag
+    label: Harbor Core Image Tag
   - variable: jobservice.image.repository
     default: "goharbor/harbor-jobservice"
     description: "Docker image repository"
     type: string
-    label: Image Repository
+    label: JobService Image Repository
   - variable: jobservice.image.tag
     default: "v1.7.5"
     description: "Docker image tag"
     type: string
-    label: Image Tag
+    label: JobService Image Tag
   - variable: registry.registry.image.repository
     default: "goharbor/registry-photon"
-    description: "Docker image repository"
+    description: "Registry Docker image repository"
     type: string
-    label: Image Repository
+    label: Registry Image Repository
   - variable: registry.registry.image.tag
     default: "v2.6.2-v1.7.5"
-    description: "Docker image tag"
+    description: "Registry Docker image tag"
     type: string
     label: Image Tag
   - variable: registry.controller.image.repository
     default: "goharbor/harbor-registryctl"
-    description: "Docker image repository"
+    description: "Registry Controller Docker image repository"
     type: string
     label: Image Repository
   - variable: registry.controller.image.tag
     default: "v1.7.5"
-    description: "Docker image tag"
+    description: "Registry Controller image tag"
     type: string
     label: Image Tag
   - variable: chartmuseum.image.repository
@@ -91,72 +91,52 @@ questions:
     default: "goharbor/clair-photon"
     description: "Docker image repository"
     type: string
-    label: Image Repository
+    label: Clair Image Repository
   - variable: clair.image.tag
     default: "v2.0.8-v1.7.5"
     description: "Docker image tag"
     type: string
-    label: Image Tag
+    label: Clair Image Tag
   - variable: notary.server.image.repository
     default: "goharbor/notary-server-photon"
     description: "Docker image repository"
     type: string
-    label: Image Repository
+    label: Notary Server Image Repository
   - variable: notary.server.image.tag
     default: "v0.6.1-v1.7.5"
     description: "Docker image tag"
     type: string
-    label: Image Tag
+    label: Notary Server Image Tag
   - variable: notary.signer.image.repository
     default: "goharbor/notary-signer-photon"
     description: "Docker image repository"
     type: string
-    label: Image Repository
+    label: Notary Signer Image Repository
   - variable: notary.signer.image.tag
     default: "v0.6.1-v1.7.5"
     description: "Docker image tag"
     type: string
-    label: Image Tag
-  - variable: redis.image.repository
-    default: "bitnami/redis"
-    description: "Docker image repository"
+    label: Notary Signer Image Tag
+  - variable: redis.internal.image.repository
+    default: "goharbor/redis-photon"
+    description: "Redis Docker image repository"
     type: string
-    label: Image Repository
-  - variable: redis.image.tag
-    default: "4.0.13"
-    description: "Docker image tag"
+    label: Redis Image Repository
+  - variable: redis.internal.image.tag
+    default: "v1.7.5"
+    description: "Redis Docker image tag"
     type: string
-    label: Image Tag
-  - variable: redis.volumePermissions.image.repository
-    default: "bitnami/minideb"
-    description: "Docker image repository"
+    label: Redis Image Tag
+  - variable: database.internal.image.repository
+    default: "goharbor/harbor-db"
+    description: "DB Docker image repository"
     type: string
-    label: Image Repository
-  - variable: redis.volumePermissions.image.tag
-    default: "latest"
-    description: "Docker image tag"
+    label: DB Image Repository
+  - variable: database.internal.image.tag
+    default: "v1.7.5"
+    description: "DB Docker image tag"
     type: string
-    label: Image Tag
-  - variable: postgresql.image.repository
-    default: "bitnami/postgresql"
-    description: "Docker image repository"
-    type: string
-    label: Image Repository
-  - variable: postgresql.image.tag
-    default: "10.7.0"
-    description: "Docker image tag"
-    type: string
-    label: Image Tag
-  - variable: postgresql.volumePermissions.image.repository
-    default: "bitnami/minideb"
-    description: "Docker image repository"
-    type: string
-    label: Image Repository
-  - variable: postgresql.volumePermissions.image.tag
-    default: "latest"
-    description: "Docker image tag"
-    type: string
-    label: Image Tag
+    label: DB Image Tag
 # Global Options
 - variable: harborAdminPassword
   required: true
@@ -198,14 +178,6 @@ questions:
     - "ingress"
     - "nodePort"
     - "loadBalancer"
-    - "clusterIP"
-- variable: externalURL
-  required: true
-  default: "https://harbor.local:30003"
-  description: "Use k8s node IP if the service type is NodePort or proxy URL if the Harbor is deployed behind the proxy (format: protocol://domain:port)"
-  type: string
-  label: The External URL for Harbor Core Service
-  group: "Expose Service Options"
 - variable: expose.ingress.host
   required: true
   default: "harbor.local"
@@ -214,6 +186,13 @@ questions:
   label: Ingress Hostname of Harbor
   group: "Expose Service Options"
   show_if: "expose.type=ingress"
+- variable: externalURL
+  required: true
+  default: "https://harbor.local:30003"
+  description: "Use k8s node IP if the service type is NodePort or proxy URL if the Harbor is deployed behind the proxy (format: protocol://domain:port)"
+  type: string
+  label: The External URL for Harbor Core Service
+  group: "Expose Service Options"
 - variable: expose.tls.type
   required: true
   default: "secretName"
@@ -425,7 +404,6 @@ questions:
   show_if: "imageChartStorage.type=filesystem"
   options:
     - emptyDir
-    - hostPath
     - storageClass
 - variable: persistence.hostPath
   default: "/var/lib/harbor"
@@ -472,52 +450,22 @@ questions:
   group: "Persistence Storage Settings"
 
 # database
-- variable: postgresql.enabled
-  default: true
-  description: "Deploy a database server as part of this deployment, or set to false and configure an external database connection."
-  type: boolean
-  label: Install PostgreSQL Database
+- variable: database.type
+  default: "internal"
+  description: "Config Database type, set to internal to deploy a database server as part of this deployment."
+  type: enum
+  label: Config Database Type
   group: "Database Settings"
-- variable: postgresql.replication.enabled
-  default: false
-  description: "Enable PostgreSQL HA replication"
-  type: boolean
-  required: true
-  label: Enable PostgreSQL HA Replication
-  show_if: "postgresql.enabled=true"
-  group: "Database Settings"
-- variable: postgresql.persistence.enabled
-  default: false
-  description: "Enable persistent volume for PostgreSQL"
-  type: boolean
-  required: true
-  label: PostgreSQL Persistent Volume Enabled
-  show_if: "postgresql.enabled=true"
-  show_subquestion_if: true
-  group: "Database Settings"
-  subquestions:
-    - variable: postgresql.persistence.size
-      default: "5Gi"
-      description: "PostgreSQL Persistent Volume Size"
-      type: string
-      label: PostgreSQL Volume Size
-    - variable: postgresql.persistence.storageClass
-      default: ""
-      description: "If undefined or null, uses the default StorageClass. Default to null"
-      type: storageclass
-      label: Default StorageClass for Postgresql
-    - variable: postgresql.persistence.existingClaim
-      default: ""
-      description: "If not empty, uses the specified existing PVC instead of creating new one"
-      type: pvc
-      label: Existing Persistent Volume Claim for PostgreSQL
+  options:
+    - "internal"
+    - "external"
 - variable: database.external.host
   required: true
   default: ""
   description: "Host of the external database"
   type: string
   label: External Database Host
-  show_if: "postgresql.enabled=false"
+  show_if: "database.type=external"
   group: "Database Settings"
 - variable: database.external.username
   required: true
@@ -525,7 +473,7 @@ questions:
   description: "Existing username in the external DB"
   type: string
   label: External Database username
-  show_if: "postgresql.enabled=false"
+  show_if: "database.type=external"
   group: "Database Settings"
 - variable: database.external.password
   default: ""
@@ -533,7 +481,7 @@ questions:
   description: "External database password"
   type: password
   label: External Database password
-  show_if: "postgresql.enabled=false"
+  show_if: "database.type=external"
   group: "Database Settings"
 - variable: database.external.coreDatabase
   default: "registry"
@@ -541,7 +489,7 @@ questions:
   description: "The database used by core service"
   type: string
   label: Database Name of Core Service
-  show_if: "postgresql.enabled=false"
+  show_if: "database.type=external"
   group: "Database Settings"
 - variable: database.external.clairDatabase
   default: "clair"
@@ -549,7 +497,7 @@ questions:
   description: "The database used by Clair service"
   type: string
   label: Database Name of Clair
-  show_if: "postgresql.enabled=false"
+  show_if: "database.type=external"
   group: "Database Settings"
 - variable: database.external.notaryServerDatabase
   default: "notary_server"
@@ -557,7 +505,7 @@ questions:
   description: "The database used by Notary server"
   type: string
   label: Database Name of Notary Server
-  show_if: "postgresql.enabled=false"
+  show_if: "database.type=external"
   group: "Database Settings"
 - variable: database.external.notarySignerDatabase
   default: "notary_signer"
@@ -565,7 +513,7 @@ questions:
   description: "The database used by Notary signer"
   type: string
   label: Database Name of Notary Signer
-  show_if: "postgresql.enabled=false"
+  show_if: "database.type=external"
   group: "Database Settings"
 - variable: database.external.sslmode
   default: "disable"
@@ -573,7 +521,7 @@ questions:
   description: "Connection method of external database"
   type: string
   label: External Database sslmode
-  show_if: "postgresql.enabled=false"
+  show_if: "database.type=external"
   group: "Database Settings"
 - variable: database.external.port
   default: "5432"
@@ -581,56 +529,25 @@ questions:
   description: "External database port number"
   type: string
   label: External Database Port
-  show_if: "postgresql.enabled=false"
+  show_if: "database.type=external"
   group: "Database Settings"
 # redis
-- variable: redis.enabled
-  default: true
+- variable: redis.type
+  default: "internal"
   description: "Deploy a redis-HA server as part of this deployment, or set to false and configure an external redis service."
-  type: boolean
-  label: Install Redis
+  type: enum
+  label: Config Redis Type
   group: "Redis Settings"
-- variable: redis.cluster.slaveCount
-  required: true
-  default: 1
-  min: 1
-  max: 9
-  type: int
-  label: Slave Replicas
-  group: "Redis Settings"
-  show_if: "redis.enabled=true"
-- variable: redis.master.persistence.enabled
-  default: false
-  description: "Enable persistent volume for Redis"
-  type: boolean
-  required: true
-  label: Redis Persistent Volume Enabled
-  show_if: "redis.enabled=true"
-  show_subquestion_if: true
-  group: "Redis Settings"
-  subquestions:
-    - variable: redis.master.persistence.size
-      default: "5Gi"
-      description: "Redis Persistent Volume Size"
-      type: string
-      label: Redis Volume Size
-    - variable: redis.master.persistence.storageClass
-      default: ""
-      description: "If undefined or null, uses the default StorageClass. Default to null"
-      type: storageclass
-      label: Default StorageClass for Redis
-    - variable: redis.persistence.existingClaim
-      default: ""
-      description: "If not empty, uses the specified existing PVC instead of creating new one"
-      type: pvc
-      label: Existing Persistent Volume Claim for Redis
+  options:
+    - "internal"
+    - "external"
 - variable: redis.external.host
   required: true
   default: ""
   description: "Host of the external redis"
   type: string
   label: External Reids Host
-  show_if: "redis.enabled=false"
+  show_if: "redis.type=external"
   group: "Redis Settings"
 - variable: redis.external.port
   required: true
@@ -638,14 +555,14 @@ questions:
   description: "Existing username in the external DB"
   type: string
   label: External Redis username
-  show_if: "redis.enabled=false"
+  show_if: "redis.type=external"
   group: "Redis Settings"
 - variable: redis.external.password
   default: ""
   description: "External redis server password"
   type: password
   label: External Redis password
-  show_if: "redis.enabled=false"
+  show_if: "redis.type=external"
   group: "Redis Settings"
 # clair and notary options
 - variable: clair.enabled

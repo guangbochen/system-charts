@@ -100,13 +100,29 @@ persistence:
       subPath: ""
       accessMode: ReadWriteOnce
       size: 5Gi
+    # update default jobservice jobLogger to DB so pvc is not really required
     jobservice:
       existingClaim: ""
       storageClass: ""
       subPath: ""
       accessMode: ReadWriteOnce
       size: 1Gi
-
+    # If external database is used, the following settings for database will 
+    # be ignored
+    database:
+      existingClaim: ""
+      storageClass: ""
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+    # If external Redis is used, the following settings for Redis will 
+    # be ignored
+    redis:
+      existingClaim: ""
+      storageClass: ""
+      subPath: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
 # Define which storage backend is used for registry and chartmuseum to store
 # images and charts. Refer to
 # https://github.com/docker/distribution/blob/master/docs/configuration.md#storage
@@ -434,50 +450,23 @@ notary:
   # They will be generated if not set.
   secretName: ""
 
-postgresql:
-  enabled: true
-
-  image:
-    repository: bitnami/postgresql
-    tag: 10.7.0
-    pullPolicy: IfNotPresent
-
-  volumePermissions:
-    enabled: true
-    image:
-      repository: bitnami/minideb
-      tag: latest
-
-  replication:
-    enabled: false
-    user: repl_user
-    password: repl_password
-    slaveReplicas: 2
-    synchronousCommit: "on"
-    numSynchronousReplicas: 1
-    applicationName: my_application
-
-  postgresqlUsername: postgres
-  postgresqlPassword: dadmin
-  postgresqlDatabase: mydb
-
-  persistence:
-    enabled: false
-    accessModes:
-      - ReadWriteOnce
-    # storageClass: "-"
-    size: 2Gi
-    hostPath: /var/lib/harbor/postgres
-
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
-
 database:
+  # if external database is used, set "type" to "external"
+  # and fill the connection informations in "external" section
+  type: internal
+  internal:
+    image:
+      repository: goharbor/harbor-db
+      tag: v1.7.5
+    # The initial superuser password for internal database
+    password: "changeit"
+    # resources:
+    #  requests:
+    #    memory: 256Mi
+    #    cpu: 100m
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
   external:
     host: "192.168.0.1"
     port: "5432"
@@ -488,51 +477,24 @@ database:
     notaryServerDatabase: "notary_server"
     notarySignerDatabase: "notary_signer"
     sslmode: "disable"
+  ## Additional deployment annotations
+  podAnnotations: {}
 
 redis:
-  enabled: true
-  image:
-    repository: bitnami/redis
-    tag: 4.0.13
-    pullPolicy: IfNotPresent
-
-  cluster:
-    enabled: true
-    slaveCount: 1
-
-  usePassword: true
-  password: redis
-  master:
-    resources:
-      requests:
-        cpu: 20m
-        memory: 100Mi
-      limits:
-        cpu: 50m
-        memory: 128Mi
-    persistence:
-      enabled: false
-      # storageClass: "-"
-      accessModes:
-        - ReadWriteOnce
-      size: 5Gi
-  slave:
-    resources:
-      requests:
-        cpu: 20m
-        memory: 100Mi
-      limits:
-        cpu: 50m
-        memory: 128Mi
-
-  volumePermissions:
-    enabled: true
+  # if external Redis is used, set "type" to "external"
+  # and fill the connection informations in "external" section
+  type: internal
+  internal:
     image:
-      repository: bitnami/minideb
-      tag: latest
-      pullPolicy: IfNotPresent
-    resources: {}
-
+      repository: goharbor/redis-photon
+      tag: v1.7.5
+    # resources:
+    #  requests:
+    #    memory: 256Mi
+    #    cpu: 100m
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
   external:
     host: "192.168.0.2"
     port: "6379"
@@ -543,3 +505,5 @@ redis:
     registryDatabaseIndex: "2"
     chartmuseumDatabaseIndex: "3"
     password: ""
+  ## Additional deployment annotations
+  podAnnotations: {}

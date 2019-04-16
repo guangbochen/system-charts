@@ -104,7 +104,7 @@ spec:
             - key: tls.crt
               path: ca.crt
         {{- else if and (eq .Values.expose.type "ingress") (ne .Values.expose.tls.type "secretName") }}
-          secretName: {{ template "harbor.ingress" . }}
+          secretName: {{ template "harbor.ingress.core" . }}
           items:
             - key: ca.crt
               path: ca.crt
