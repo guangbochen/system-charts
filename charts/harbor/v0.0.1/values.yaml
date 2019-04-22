@@ -368,7 +368,7 @@ registry:
   secret: ""
 
 chartmuseum:
-  enabled: true
+  enabled: false
   image:
     repository: goharbor/chartmuseum-photon
     tag: v0.8.1-v1.7.5
@@ -400,11 +400,11 @@ clair:
   updatersInterval: 12
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
       cpu: 100m
       memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 1500Mi
   nodeSelector: {}
   tolerations: []
   affinity: {}
