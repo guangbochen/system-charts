@@ -1,5 +1,5 @@
 {{- $jobservice := .Values.persistence.persistentVolumeClaim.jobservice -}}
-{{- if and (eq .Values.persistence.type "storageClass") (not $jobservice.existingClaim) }}
+{{- if and .Values.persistence.enabled (not $jobservice.existingClaim) }}
 {{- if eq .Values.jobservice.jobLogger "file" }}
 kind: PersistentVolumeClaim
 apiVersion: v1
