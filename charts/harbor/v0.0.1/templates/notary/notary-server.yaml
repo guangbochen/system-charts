@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
       - name: notary-server
-        image: {{ .Values.notary.server.image.repository }}:{{ .Values.notary.server.image.tag }}
+        image: {{ template "system_default_registry" . }}{{ .Values.notary.server.image.repository }}:{{ .Values.notary.server.image.tag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
 {{- if .Values.notary.server.resources }}
         resources:

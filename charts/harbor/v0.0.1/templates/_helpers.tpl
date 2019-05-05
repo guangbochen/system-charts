@@ -310,3 +310,11 @@ when the type isn't "ingress" and TLS type is "self-signed x509 certificate"
   {{- $trimURL := (include "harbor.externalURL" .)  | trimPrefix "https://"  | trimPrefix "http://" -}}
   {{ regexReplaceAll ":.*$" $trimURL "${1}" }}
 {{- end -}}
+
+{{- define "system_default_registry" -}}
+{{- if .Values.global.systemDefaultRegistry -}}
+{{- printf "%s/" .Values.global.systemDefaultRegistry -}}
+{{- else -}}
+{{- "" -}}
+{{- end -}}
+{{- end -}}

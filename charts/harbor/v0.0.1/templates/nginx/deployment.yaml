@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+        image: {{ template "system_default_registry" . }}{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}
         imagePullPolicy: "{{ .Values.imagePullPolicy }}"
         livenessProbe:
           httpGet:
