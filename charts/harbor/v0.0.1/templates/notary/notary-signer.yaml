@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: notary-signer
-        image: {{ .Values.notary.signer.image.repository }}:{{ .Values.notary.signer.image.tag }}
+        image: {{ template "system_default_registry" . }}{{ .Values.notary.signer.image.repository }}:{{ .Values.notary.signer.image.tag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
 {{- if .Values.notary.signer.resources }}
         resources:

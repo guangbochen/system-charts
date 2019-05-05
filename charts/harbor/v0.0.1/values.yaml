@@ -506,3 +506,6 @@ redis:
     password: ""
   ## Additional deployment annotations
   podAnnotations: {}
+
+global:
+  systemDefaultRegistry: ""
