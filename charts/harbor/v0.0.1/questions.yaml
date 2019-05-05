@@ -394,31 +394,19 @@ questions:
   show_if: "imageChartStorage.type=swift"
   group: "Storage Settings"
   # persistence options
-- variable: persistence.type
-  default: "emptyDir"
-  description: "Config the persistent volume type for Harbor services"
-  type: enum
+- variable: persistence.enabled
+  default: true
+  description: "Enable the data persistence or not"
+  type: boolean
   required: true
-  label: Harbor Persistent Volume Type
+  label: Enable Persistence
   group: "Persistence Storage Settings"
-  show_if: "imageChartStorage.type=filesystem"
-  options:
-    - emptyDir
-    - storageClass
-- variable: persistence.hostPath
-  default: "/var/lib/harbor"
-  description: "Config the persistent volume using host path"
-  type: string
-  required: true
-  label: Persistent Volume HostPath
-  group: "Persistence Storage Settings"
-  show_if: "persistence.type=hostPath"
 - variable: persistence.persistentVolumeClaim.storageClass
   default: ""
   description: "If undefined or null, uses the default StorageClass. Default to null"
   type: storageclass
   label: Default StorageClass for Harbor Services(Registry and ChartMuseum)
-  show_if: "persistence.type=storageClass"
+  show_if: "persistence.enabled=true"
   group: "Persistence Storage Settings"
 - variable: persistence.persistentVolumeClaim.registry.size
   default: "5Gi"
@@ -426,27 +414,27 @@ questions:
   type: string
   label: Registry Volume Size
   group: "Persistence Storage Settings"
-  show_if: "persistence.type=storageClass"
+  show_if: "persistence.enabled=true"
 - variable: persistence.persistentVolumeClaim.registry.existingClaim
   default: ""
   description: "If not empty, uses the specified existing PVC instead of creating new one"
   type: pvc
   label: Existing Persistent Volume Claim for Registry
   group: "Persistence Storage Settings"
-  show_if: "persistence.type=storageClass"
+  show_if: "persistence.enabled=true"
 - variable: persistence.persistentVolumeClaim.chartmuseum.size
   default: "5Gi"
   description: "Chartmuseum Persistent Volume Size"
   type: string
   label: Chartmuseum Volume Size
-  show_if: "chartmuseum.enabled=true&&persistence.type=storageClass"
+  show_if: "chartmuseum.enabled=true&&persistence.enabled=true"
   group: "Persistence Storage Settings"
 - variable: persistence.persistentVolumeClaim.chartmuseum.existingClaim
   default: ""
   description: "If not empty, uses the specified existing PVC instead of creating new one"
   type: pvc
   label: Existing Persistent Volume Claim for Chartmuseum
-  show_if: "chartmuseum.enabled=true&&persistence.type=storageClass"
+  show_if: "chartmuseum.enabled=true&&persistence.enabled=true"
   group: "Persistence Storage Settings"
 
 # database
